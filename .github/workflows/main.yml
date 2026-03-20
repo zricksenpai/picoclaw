@@ -1,0 +1,24 @@
+name: Build-Picoclaw-For-Pi3
+on: [push, workflow_dispatch]
+
+jobs:
+  build_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.7'
+
+      - name: Cross-Compile for Pi 3
+        run: |
+          GOOS=linux GOARCH=arm64 go build -v -o picoclaw_arm64 ./cmd/picoclaw/main.go
+
+      - name: Save Result
+        uses: actions/upload-artifact@v4
+        with:
+          name: picoclaw-binary-file
+          path: picoclaw_arm64
