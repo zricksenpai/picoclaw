@@ -1,37 +1,33 @@
-name: Build-Picoclaw-Full
+name: Build-Picoclaw-Pi3
 on: [push, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Node.js (Để build giao diện)
+        
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          
+      - name: Install pnpm (Công cụ build giao diện của tác giả)
+        run: npm install -g pnpm
 
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23'
-
-      - name: Install Dependencies and Build Workspace
+          go-version: '1.25'
+          
+      - name: Build Picoclaw
         run: |
-          # Cài đặt công cụ để nhúng file
-          go install github.com/mjibson/esc@latest
-          # Build phần giao diện web trước để tránh lỗi "no matching files found"
-          cd workspace && npm install && npm run build
-          cd ..
-
-      - name: Build Binary for Pi 3
-        run: |
-          GOOS=linux GOARCH=arm64 go build -v -o picoclaw_arm64 ./cmd/picoclaw/main.go
-
-      - name: Upload Result
+          make deps
+          make build-linux-arm64
+          
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: picoclaw-package
-          path: picoclaw_arm64
+          name: picoclaw-pi-ready
+          path: build/picoclaw-linux-arm64
