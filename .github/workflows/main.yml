@@ -7,14 +7,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.7'
+          go-version: '1.23' # Dùng bản ổn định để tránh lỗi v1.25
 
-      - name: Cross-Compile for Pi 3
+      - name: Build Picoclaw Binary
         run: |
+          # Lệnh build chính xác theo cấu trúc của dự án
           GOOS=linux GOARCH=arm64 go build -v -o picoclaw_arm64 ./cmd/picoclaw/main.go
 
       - name: Save Result
